@@ -29,10 +29,13 @@
 #include <up-client-zenoh-cpp/rpc/zenohRpcClient.h>
 #include <up-cpp/uuid/factory/Uuidv8Factory.h>
 #include <up-cpp/uri/serializer/LongUriSerializer.h>
+#include <up-cpp/transport/builder/UAttributesBuilder.h>
 
 using namespace uprotocol::utransport;
 using namespace uprotocol::uuid;
 using namespace uprotocol::uri;
+using namespace uprotocol::v1;
+using namespace uprotocol::rpc;
 
 bool gTerminate = false;
 
@@ -43,23 +46,17 @@ void signalHandler(int signal) {
     }
 }
 
-UPayload sendRPC(UUri& uri) {
-   
-    auto uuid = Uuidv8Factory::create();
-   
-    UAttributesBuilder builder(uuid, UMessageType::REQUEST, UPriority::STANDARD);
-    UAttributes attributes = builder.build();
-  
-    constexpr uint8_t BUFFER_SIZE = 1;
-    uint8_t buffer[BUFFER_SIZE] = {0}; 
+RpcResponse sendRPC(UUri& uri) {
+    
+    UPayload payload(nullptr, 0, UPayloadType::REFERENCE);
+    CallOptions options;
 
-    UPayload payload(buffer, sizeof(buffer), UPayloadType::VALUE);
+    options.set_priority(UPriority::UPRIORITY_CS4);
     /* send the RPC request , a future is returned from invokeMethod */
-    std::future<UPayload> result = ZenohRpcClient::instance().invokeMethod(uri, payload, attributes);
+    std::future<RpcResponse> result = ZenohRpcClient::instance().invokeMethod(uri, payload, options);
 
     if (!result.valid()) {
         spdlog::error("Future is invalid");
-        return UPayload(nullptr, 0, UPayloadType::UNDEFINED);   
     }
     /* wait for the future to be fullfieled - it is possible also to specify a timeout for the future */
     result.wait();
@@ -95,8 +92,8 @@ int main(int argc,
 
         uint64_t milliseconds = 0;
 
-        if (response.data() != nullptr && response.size() >= sizeof(uint64_t)) {
-            memcpy(&milliseconds, response.data(), sizeof(uint64_t));
+        if (response.message.payload().data() != nullptr && response.message.payload().size() >= sizeof(uint64_t)) {
+            memcpy(&milliseconds, response.message.payload().data(), sizeof(uint64_t));
             spdlog::info("Received = {}", milliseconds);
         }
 

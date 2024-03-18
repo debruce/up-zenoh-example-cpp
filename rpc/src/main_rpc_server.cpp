@@ -28,6 +28,7 @@
 #include <up-client-zenoh-cpp/transport/zenohUTransport.h>
 #include <up-cpp/uuid/factory/Uuidv8Factory.h>
 #include <up-cpp/uri/serializer/LongUriSerializer.h>
+#include <up-cpp/transport/builder/UAttributesBuilder.h>
 #include <spdlog/spdlog.h>
 
 using namespace uprotocol::utransport;
@@ -46,10 +47,8 @@ void signalHandler(int signal) {
 class RpcListener : public UListener {
 
     public:
-        UStatus onReceive(const UUri& uri,
-                          const UPayload& payload,
-                          const UAttributes& attributes) const override {
-            
+       
+         UStatus onReceive(UMessage &message) const override {
             /* Construct response payload with the current time */
             auto currentTime = std::chrono::system_clock::now();
             auto duration = currentTime.time_since_epoch();
@@ -59,11 +58,12 @@ class RpcListener : public UListener {
 
             /* Build response attributes - the same UUID should be used to send the response 
              * it is also possible to send the response outside of the callback context */
-            UAttributesBuilder builder(attributes.id(), UMessageType::RESPONSE, UPriority::STANDARD);
+            UAttributesBuilder builder(message.attributes().id(), UMessageType::UMESSAGE_TYPE_RESPONSE, UPriority::UPRIORITY_CS0);
             UAttributes responseAttributes = builder.build();
 
+            auto rpcUri = LongUriSerializer::deserialize("/test_rpc.app/1/rpc.milliseconds");
             /* Send the response */
-            return ZenohUTransport::instance().send(uri, responsePayload, responseAttributes);
+            return ZenohUTransport::instance().send(rpcUri, responsePayload, responseAttributes);
         }
 };
 
