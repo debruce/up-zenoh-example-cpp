@@ -47,48 +47,89 @@ void signalHandler(int signal) {
     }
 }
 
-class CustomListener : public UListener {
+// class CustomListener : public UListener {
 
-    public:
+//     public:
 
-        UStatus onReceive(UMessage &message) const override {
-            using namespace std;
-            (void)message;
-            auto& payload = message.payload();
-            cout << "onReceive payload=" << typeid(payload).name()
-                << " size=" << payload.size()
-                // << " type=" << int(payload.type())
-                << " format=" << payload.format();
-            for (size_t i = 0; i < payload.size(); i++) {
-                cout << ' ' << int(payload.data()[i]);
-            }
-            cout << endl;
-            // if (TIME_URI_STRING == LongUriSerializer::serialize(uri)) {
+//         UStatus onReceive(UMessage &message) const override {
+//             using namespace std;
+//             (void)message;
+//             auto& payload = message.payload();
+//             cout << "onReceive payload=" << typeid(payload).name()
+//                 << " size=" << payload.size()
+//                 // << " type=" << int(payload.type())
+//                 << " format=" << payload.format();
+//             for (size_t i = 0; i < payload.size(); i++) {
+//                 cout << ' ' << int(payload.data()[i]);
+//             }
+//             cout << endl;
+//             // if (TIME_URI_STRING == LongUriSerializer::serialize(uri)) {
             
-            //     const uint64_t  *timeInMilliseconds = reinterpret_cast<const uint64_t*>(payload.data());
+//             //     const uint64_t  *timeInMilliseconds = reinterpret_cast<const uint64_t*>(payload.data());
         
-            //     spdlog::info("time = {}", *timeInMilliseconds);
+//             //     spdlog::info("time = {}", *timeInMilliseconds);
 
-            // } else if (RANDOM_URI_STRING == LongUriSerializer::serialize(uri)) {
+//             // } else if (RANDOM_URI_STRING == LongUriSerializer::serialize(uri)) {
         
-            //     const uint32_t *random = reinterpret_cast<const uint32_t*>(payload.data());
+//             //     const uint32_t *random = reinterpret_cast<const uint32_t*>(payload.data());
         
-            //     spdlog::info("random = {}", *random);
+//             //     spdlog::info("random = {}", *random);
 
-            // } else if (COUNTER_URI_STRING == LongUriSerializer::serialize(uri)) {
+//             // } else if (COUNTER_URI_STRING == LongUriSerializer::serialize(uri)) {
                 
-            //     const uint8_t *counter = reinterpret_cast<const uint8_t*>(payload.data());
+//             //     const uint8_t *counter = reinterpret_cast<const uint8_t*>(payload.data());
 
-            //     spdlog::info("counter = {}", *counter);
-            // }
+//             //     spdlog::info("counter = {}", *counter);
+//             // }
 
-            UStatus status;
+//             UStatus status;
 
-            status.set_code(UCode::OK);
+//             status.set_code(UCode::OK);
 
-            return status;
+//             return status;
       
+//         }
+// };
+
+struct CustomListener {
+    UStatus operator()(UMessage &message) {
+        using namespace std;
+        (void)message;
+        auto& payload = message.payload();
+        cout << "onReceive payload=" << typeid(payload).name()
+            << " size=" << payload.size()
+            // << " type=" << int(payload.type())
+            << " format=" << payload.format();
+        for (size_t i = 0; i < payload.size(); i++) {
+            cout << ' ' << int(payload.data()[i]);
         }
+        cout << endl;
+        // if (TIME_URI_STRING == LongUriSerializer::serialize(uri)) {
+        
+        //     const uint64_t  *timeInMilliseconds = reinterpret_cast<const uint64_t*>(payload.data());
+    
+        //     spdlog::info("time = {}", *timeInMilliseconds);
+
+        // } else if (RANDOM_URI_STRING == LongUriSerializer::serialize(uri)) {
+    
+        //     const uint32_t *random = reinterpret_cast<const uint32_t*>(payload.data());
+    
+        //     spdlog::info("random = {}", *random);
+
+        // } else if (COUNTER_URI_STRING == LongUriSerializer::serialize(uri)) {
+            
+        //     const uint8_t *counter = reinterpret_cast<const uint8_t*>(payload.data());
+
+        //     spdlog::info("counter = {}", *counter);
+        // }
+
+        UStatus status;
+
+        status.set_code(UCode::OK);
+
+        return status;
+    
+    }
 };
 
 /* The sample sub applications demonstrates how to consume data using uTransport -

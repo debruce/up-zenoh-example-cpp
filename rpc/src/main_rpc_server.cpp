@@ -44,28 +44,49 @@ void signalHandler(int signal) {
     }
 }
 
-class RpcListener : public UListener {
+// class RpcListener : public UListener {
 
-    public:
+//     public:
        
-         UStatus onReceive(UMessage &message) const override {
-            /* Construct response payload with the current time */
-            auto currentTime = std::chrono::system_clock::now();
-            auto duration = currentTime.time_since_epoch();
-            uint64_t currentTimeMilli = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+//          UStatus onReceive(UMessage &message) const override {
+//             /* Construct response payload with the current time */
+//             auto currentTime = std::chrono::system_clock::now();
+//             auto duration = currentTime.time_since_epoch();
+//             uint64_t currentTimeMilli = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 
-            UPayload responsePayload(reinterpret_cast<const uint8_t*>(&currentTimeMilli), sizeof(currentTimeMilli), UPayloadType::VALUE);
+//             UPayload responsePayload(reinterpret_cast<const uint8_t*>(&currentTimeMilli), sizeof(currentTimeMilli), UPayloadType::VALUE);
 
-            /* Build response attributes - the same UUID should be used to send the response 
-             * it is also possible to send the response outside of the callback context */
-            UAttributesBuilder builder(message.attributes().id(), UMessageType::UMESSAGE_TYPE_RESPONSE, UPriority::UPRIORITY_CS0);
-            auto rpcUri = LongUriSerializer::deserialize("/test_rpc.app/1/rpc.milliseconds");
-            builder.setSource(rpcUri);
-            UAttributes responseAttributes = builder.build();
+//             /* Build response attributes - the same UUID should be used to send the response 
+//              * it is also possible to send the response outside of the callback context */
+//             UAttributesBuilder builder(message.attributes().id(), UMessageType::UMESSAGE_TYPE_RESPONSE, UPriority::UPRIORITY_CS0);
+//             auto rpcUri = LongUriSerializer::deserialize("/test_rpc.app/1/rpc.milliseconds");
+//             builder.setSource(rpcUri);
+//             UAttributes responseAttributes = builder.build();
 
-            /* Send the response */
-            return ZenohUTransport::instance().send(responsePayload, responseAttributes);
-        }
+//             /* Send the response */
+//             return ZenohUTransport::instance().send(responsePayload, responseAttributes);
+//         }
+// };
+
+struct RpcListener {
+        UStatus operator()(UMessage &message) {
+        /* Construct response payload with the current time */
+        auto currentTime = std::chrono::system_clock::now();
+        auto duration = currentTime.time_since_epoch();
+        uint64_t currentTimeMilli = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+
+        UPayload responsePayload(reinterpret_cast<const uint8_t*>(&currentTimeMilli), sizeof(currentTimeMilli), UPayloadType::VALUE);
+
+        /* Build response attributes - the same UUID should be used to send the response 
+            * it is also possible to send the response outside of the callback context */
+        UAttributesBuilder builder(message.attributes().id(), UMessageType::UMESSAGE_TYPE_RESPONSE, UPriority::UPRIORITY_CS0);
+        auto rpcUri = LongUriSerializer::deserialize("/test_rpc.app/1/rpc.milliseconds");
+        builder.setSource(rpcUri);
+        UAttributes responseAttributes = builder.build();
+
+        /* Send the response */
+        return ZenohUTransport::instance().send(responsePayload, responseAttributes);
+    }
 };
 
 /* The sample RPC server applications demonstrates how to receive RPC requests and send a response back to the client -
