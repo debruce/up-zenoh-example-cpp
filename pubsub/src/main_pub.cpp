@@ -93,11 +93,12 @@ UCode sendMessage(ZenohUTransport *transport,
     auto uuid = Uuidv8Factory::create();
    
     UAttributesBuilder builder(uuid, UMessageType::UMESSAGE_TYPE_PUBLISH, UPriority::UPRIORITY_CS0);
+    builder.setSource(uri);
     UAttributes attributes = builder.build();
    
     UPayload payload(seq.data(), seq.size(), UPayloadType::VALUE);
    
-    UStatus status = transport->send(uri, payload, attributes);
+    UStatus status = transport->send(payload, attributes);
     if (UCode::OK != status.code()) {
         spdlog::error("send.send failed");
         return UCode::UNAVAILABLE;

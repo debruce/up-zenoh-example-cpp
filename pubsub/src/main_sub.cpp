@@ -57,9 +57,9 @@ class CustomListener : public UListener {
             auto& payload = message.payload();
             cout << "onReceive payload=" << typeid(payload).name()
                 << " size=" << payload.size()
-                << " type=" << int(payload.type())
+                // << " type=" << int(payload.type())
                 << " format=" << payload.format();
-            for (auto i = 0; i < payload.size(); i++) {
+            for (size_t i = 0; i < payload.size(); i++) {
                 cout << ' ' << int(payload.data()[i]);
             }
             cout << endl;
