@@ -69,7 +69,7 @@ void signalHandler(int signal) {
 // };
 
 struct RpcListener {
-        UStatus operator()(UMessage &message) {
+        UStatus operator()(const UMessage &message) {
         /* Construct response payload with the current time */
         auto currentTime = std::chrono::system_clock::now();
         auto duration = currentTime.time_since_epoch();

@@ -92,7 +92,7 @@ void signalHandler(int signal) {
 // };
 
 struct CustomListener {
-    UStatus operator()(UMessage &message) {
+    UStatus operator()(const UMessage &message) {
         using namespace std;
         (void)message;
         auto& payload = message.payload();
