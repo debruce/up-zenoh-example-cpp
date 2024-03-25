@@ -97,8 +97,11 @@ UCode sendMessage(ZenohUTransport *transport,
     UAttributes attributes = builder.build();
    
     UPayload payload(seq.data(), seq.size(), UPayloadType::VALUE);
+    UMessage message;
+    message.setAttributes(attributes);
+    message.setPayload(payload);
    
-    UStatus status = transport->send(payload, attributes);
+    UStatus status = transport->send(message);
     if (UCode::OK != status.code()) {
         spdlog::error("send.send failed");
         return UCode::UNAVAILABLE;
