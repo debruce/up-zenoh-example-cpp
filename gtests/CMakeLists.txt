@@ -21,8 +21,39 @@
 # SPDX-License-Identifier: Apache-2.0
 
 cmake_minimum_required(VERSION 3.20)
-project(samples VERSION 0.1.0 LANGUAGES CXX)
+project(gtests VERSION 0.1.0 LANGUAGES CXX)
 
-add_subdirectory(pubsub)
-add_subdirectory(rpc)
-add_subdirectory(gtests)
+find_package(spdlog REQUIRED)
+find_package(up-client-zenoh-cpp QUIET)
+find_package(up-cpp QUIET)
+
+find_package(GTest REQUIRED)
+# if(NOT GTEST_LIBRARY)
+#     message("GTest not found!")
+# endif()
+
+add_definitions(-DSPDLOG_FMT_EXTERNAL)
+
+if(DEFINED ENV{GITHUB_CICD_ZENOH_PATH})
+    set(ZENOH_LIB $ENV{GITHUB_CICD_ZENOH_PATH})
+else()
+    find_library(ZENOH_LIB zenohc)
+endif() 
+
+# gtest
+add_executable(gtest src/main_gtest.cpp)
+target_link_libraries(gtest
+    PUBLIC
+        ${ZENOH_LIB}
+        up-client-zenoh-cpp::up-client-zenoh-cpp)
+
+target_include_directories(gtest 
+    PUBLIC
+        $ENV{CMAKE_ZENOH_INCLUDE_PATH}
+        ${fmt_INCLUDE_DIR}
+        ${spdlog_INCLUDE_DIR}
+        ${up-cpp_INCLUDE_DIR}
+    PRIVATE
+        GTest::gtest_main
+        GTest::gmock
+    )
