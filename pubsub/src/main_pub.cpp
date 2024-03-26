@@ -89,12 +89,7 @@ template <typename T>
 UCode sendMessage(ZenohUTransport *transport,
                   UUri &uri,
                   const T& seq) {
-   
-    auto uuid = Uuidv8Factory::create();
-   
-    UAttributesBuilder builder(uuid, UMessageType::UMESSAGE_TYPE_PUBLISH, UPriority::UPRIORITY_CS0);
-    builder.setSource(uri);
-    UAttributes attributes = builder.build();
+    auto attributes = UAttributesBuilder::publish(uri, UPriority::UPRIORITY_CS0).build();
    
     UPayload payload(seq.data(), seq.size(), UPayloadType::VALUE);
     UMessage message;

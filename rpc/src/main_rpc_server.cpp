@@ -58,16 +58,15 @@ class RpcListener : public UListener {
 
             /* Build response attributes - the same UUID should be used to send the response 
              * it is also possible to send the response outside of the callback context */
-            UAttributesBuilder builder(message.attributes().id(), UMessageType::UMESSAGE_TYPE_RESPONSE, UPriority::UPRIORITY_CS0);
-            auto rpcUri = LongUriSerializer::deserialize("/test_rpc.app/1/rpc.milliseconds");
-            builder.setSource(rpcUri);
-            UAttributes responseAttributes = builder.build();
-            UMessage responseMessage;
-            responseMessage.setPayload(responsePayload);
-            responseMessage.setAttributes(responseAttributes);
+            auto responseAttributes = UAttributesBuilder::response(
+                message.attributes().sink(),
+                message.attributes().source(),
+                UPriority::UPRIORITY_CS0,
+                message.attributes().id()).build();
 
+            UMessage messageResp(responsePayload, responseAttributes);
             /* Send the response */
-            return ZenohUTransport::instance().send(responseMessage);
+            return ZenohUTransport::instance().send(messageResp);
         }
 };
 
